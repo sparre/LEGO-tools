@@ -42,6 +42,10 @@
 --  2002.08.04 (Jacob Sparre Andersen)
 --    Improved the help message.
 --
+--  2002.08.14 (Jacob Sparre Andersen)
+--    Fixed an artistic error in the comment on where the software can be
+--      downloaded from.
+--
 --  (Insert additional update information above this line.)
 ------------------------------------------------------------------------------
 --  Standard packages:
@@ -464,9 +468,9 @@ begin --  Build_MPD_File
       Put_Line (File => MPD_File,
                 Item => "0");
       Put_Line (File => MPD_File,
-                Item => "L3P, LDLite and LDGLite can process MPD files");
+                Item => "0 L3P, LDLite and LDGLite can process MPD files");
       Put_Line (File => MPD_File,
-                Item => "directly.");
+                Item => "0 directly.");
       New_Line (File => MPD_File);
 
       Insert (List => Unprocessed_Files,
