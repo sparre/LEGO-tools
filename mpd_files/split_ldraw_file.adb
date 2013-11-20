@@ -6,15 +6,23 @@
 --  named file, and creates the files defined in the multi-part file.
 --
 --  Command line arguments:
---    -mpd <MPD File> - MPD file to split (optional).
---    -overwrite"     - Don't check if the files allready exists (optional).
---    -show_comments  - Show comments (optional).
+--    -mpd <MPD File>                  - MPD file to split. (optional)
+--    -overwrite                       - Don't check if the files allready
+--                                       exists. (optional)
+--    -show_comments                   - Show comments. (optional)
+--    -create_directories ( yes | no ) - Create or don't new new directories
+--                                       as they are needed. Default is "yes".
+--                                       (optional)
+--    -preserve_case ( yes | no )      - Preserve the case of file names.
+--                                       Default is to convert file names to
+--                                       lower case ("no"). (optional)
 --
 ------------------------------------------------------------------------------
 --  Update information:
 --
 --  1997.06.20 (Jacob Sparre Andersen)
 --    Written.
+--
 --  1999.09.29 (Jacob Sparre Andersen)
 --    Added the "-mpd" command line argument.
 --    Added support for "NOFILE" for marking data that shouldn't be stored.
@@ -22,6 +30,12 @@
 --    All file and directory names are tranlated to lower case.
 --    Added the flag "-show_comments". Default is now to ignore everything
 --      that isn't written to a DAT file.
+--
+--  2002.08.06 (Jacob Sparre Andersen)
+--    Added the "-create_directories" command line argument for specifying
+--      if the program should create new directories or not.
+--    Added the "-preserve_case" command line argument for specifying if the
+--      program should convert file names to lower case or not.
 --
 --  (Insert additional update information above this line.)
 ------------------------------------------------------------------------------
@@ -56,11 +70,13 @@ procedure Split_LDraw_File is
    --  Exceptions:
 
    Bad_LDraw_Command : exception;
+   Bad_File_Name     : exception;
 
    ---------------------------------------------------------------------------
    --  type Argument_Names:
 
-   type Argument_Names is (Help, MPD, Overwrite, Show_Comments);
+   type Argument_Names is (Help, MPD, Overwrite, Show_Comments,
+                           Create_Directories, Preserve_Case);
 
    ---------------------------------------------------------------------------
    --  package Command_Line_Types:
@@ -81,16 +97,23 @@ procedure Split_LDraw_File is
    package Command_Line_Processing is new Generic_Command_Line_Processing
      (Command_Line_Types  => Command_Line_Types,
       Obligatory          => (others => False),
-      Minimum_Field_Count => (Help | Overwrite | Show_Comments => 0,
-                              MPD                              => 1),
-      Maximum_Field_Count => (Help | Overwrite | Show_Comments => 0,
-                              MPD                              => 1),
-      Help                => (MPD           => U (" <MPD File> - MPD file " &
-                                                    "to split."),
-                              Overwrite     => U (" - Don't check if the " &
-                                                    "files already exists."),
-                              Show_Comments => U (" - Show comments."),
-                              others        => U (" - Show this message.")));
+      Minimum_Field_Count => (Help | Overwrite | Show_Comments         => 0,
+                              MPD | Create_Directories | Preserve_Case => 1),
+      Maximum_Field_Count => (Help | Overwrite | Show_Comments         => 0,
+                              MPD | Create_Directories | Preserve_Case => 1),
+      Help                =>
+        (MPD                => U (" <MPD File> - MPD file to split."),
+         Overwrite          => U (" - Don't check if the files already " &
+                                    "exist."),
+         Show_Comments      => U (" - Show comments."),
+         Create_Directories => U (" ( yes | no ) - Should new directories " &
+                                    "be created as needed or not. Default " &
+                                    "is ""yes""."),
+         Preserve_Case      => U (" ( yes | no ) - Should the case of file " &
+                                    "names be preserved or not. Default " &
+                                    "is ""no"", which will convert file " &
+                                    "names to lower case."),
+         others             => U (" - Show this message.")));
 
    ---------------------------------------------------------------------------
    --  function Is_Meta_Command:
@@ -168,10 +191,37 @@ procedure Split_LDraw_File is
    end Split_LDraw_Meta_Command;
 
    ---------------------------------------------------------------------------
+   --  procedure Lower_Case_Include_Command:
+
+   Convert_File_Names : constant Boolean :=
+     Command_Line_Processing.Value (Argument => Preserve_Case,
+                                    Default  => "no",
+                                    Index    => 1) = "no";
+
+   procedure Lower_Case_Include_Command
+     (Line : in out Ada.Strings.Unbounded.Unbounded_String) is
+
+      use Ada.Characters.Handling;
+      use Ada.Strings;
+      use Ada.Strings.Unbounded;
+      use UStrings;
+
+   begin --  Lower_Case_Include_Command
+      if Convert_File_Names then
+         null;
+      elsif Slice (Source => Trim (Source => Line,
+                                   Side   => Left),
+                   Low    => 1,
+                   High   => 2) = "1 " then
+         Line := U (To_Lower (S (Line)));
+      end if;
+   end Lower_Case_Include_Command;
+
+   ---------------------------------------------------------------------------
    --  procedure Fix:
    --
    --  Swaps non-graphic characters with spaces, and adjusts the directory
-   --  separators to the appropriate values ('/' or '\') depending on the
+   --  separators to the appropriate values ('/', ':' or '\') depending on the
    --  operating system.
 
    procedure Fix
@@ -190,6 +240,8 @@ procedure Split_LDraw_File is
          elsif Element (Source => File_Name,
                         Index  => Index) = '/' or else
                Element (Source => File_Name,
+                        Index  => Index) = ':' or else
+               Element (Source => File_Name,
                         Index  => Index) = '\' then
             Replace_Element (Source => File_Name,
                              Index  => Index,
@@ -199,20 +251,20 @@ procedure Split_LDraw_File is
    end Fix;
 
    ---------------------------------------------------------------------------
-   --  procedure Create_Directories:
+   --  procedure Create_Path:
    --
    --  Creates the directories neccesary for the file, and adjusts the
    --  directory separators to the appropriate values ('/' or '\') depending
    --  on the operating system.
 
-   procedure Create_Directories (File_Name : in     String) is
+   procedure Create_Path (To : in     String) is
 
       use Ada.Characters.Handling;
       use GNAT.OS_Lib;
 
-      Buffer : String := File_Name;
+      Buffer : String := To;
 
-   begin --  Create_Directories
+   begin --  Create_Path
       for Index in Buffer'Range loop
          if Is_Control (Buffer (Index)) then
             Buffer (Index) := ' ';
@@ -226,14 +278,16 @@ procedure Split_LDraw_File is
             end if;
          end if;
       end loop;
-   end Create_Directories;
+   end Create_Path;
 
    ---------------------------------------------------------------------------
    --  procedure Process_File:
 
-   procedure Process_File (Source        : in     Ada.Text_IO.File_Type;
-                           Overwrite     : in     Boolean;
-                           Show_Comments : in     Boolean) is
+   procedure Process_File
+     (Source                     : in     Ada.Text_IO.File_Type;
+      Overwrite                  : in     Boolean;
+      Show_Comments              : in     Boolean;
+      Create_Missing_Directories : in     Boolean) is
 
       use Ada.Strings.Maps.Constants;
       use Ada.Strings.Unbounded;
@@ -277,10 +331,23 @@ procedure Split_LDraw_File is
                                  "overwrite the existing file.");
             else
                begin
-                  Create_Directories (File_Name => S (File_Name));
-                  Create (File => Target,
-                          Name => S (File_Name),
-                          Mode => Out_File);
+                  if Create_Missing_Directories then
+                     Create_Path (To => S (File_Name));
+                  end if;
+
+               Handle_Bad_File_Names:
+                  begin
+                     Create (File => Target,
+                             Name => S (File_Name),
+                             Mode => Out_File);
+                  exception
+                     when others =>
+                        Put_Line (File => Current_Error,
+                                  Item => "Could not create a file named """ &
+                                          S (File_Name) & """.");
+                        raise Bad_File_Name;
+                  end Handle_Bad_File_Names;
+
                   Put_Line (File => Target,
                             Item => "0 FILE " & S (File_Name));
                   Put_Line (File => Current_Error,
@@ -312,6 +379,11 @@ procedure Split_LDraw_File is
    use Ada.Text_IO;
    use Command_Line_Processing;
 
+   Create_Missing_Directories : constant Boolean :=
+                                  Value (Argument => Create_Directories,
+                                         Default  => "yes",
+                                         Index    => 1) = "yes";
+
    Source : File_Type;
 
 begin --  Split_LDraw_File
@@ -324,18 +396,22 @@ begin --  Split_LDraw_File
       Open (File => Source,
             Name => Value (MPD, 1),
             Mode => In_File);
-      Process_File (Source        => Source,
-                    Overwrite     => Set (Overwrite),
-                    Show_Comments => Set (Show_Comments));
+      Process_File (Source                     => Source,
+                    Overwrite                  => Set (Overwrite),
+                    Show_Comments              => Set (Show_Comments),
+                    Create_Missing_Directories => Create_Missing_Directories);
       Close (File => Source);
    else
       Put_Line (File => Current_Error,
                 Item => "Reading multi-part LDraw file from standard input.");
-      Process_File (Source        => Standard_Input,
-                    Overwrite     => Set (Overwrite),
-                    Show_Comments => Set (Show_Comments));
+      Process_File (Source                     => Standard_Input,
+                    Overwrite                  => Set (Overwrite),
+                    Show_Comments              => Set (Show_Comments),
+                    Create_Missing_Directories => Create_Missing_Directories);
    end if;
 exception
+   when Bad_File_Name =>
+      return;
    when others =>
       Ada.Text_IO.Put_Line
         (File => Ada.Text_IO.Current_Error,

@@ -7,7 +7,7 @@
 --  the current catalog will be added.
 --
 --  Command line arguments:
---    "-model" <Model file name> - Main file (.dat is not neccessary).
+--    "-model" <Model file name> - Main file (.ldr or .dat is not neccessary).
 --    "-path" <Directory-models> ... <Directory>
 --                               - Directories where the MPD builder should
 --                                 look for sub-models (optional).
@@ -38,6 +38,9 @@
 --
 --  2002.07.31 (Jacob Sparre Andersen)
 --    Modified the comment on where the software can be downloaded from.
+--
+--  2002.08.04 (Jacob Sparre Andersen)
+--    Improved the help message.
 --
 --  (Insert additional update information above this line.)
 ------------------------------------------------------------------------------
@@ -96,13 +99,16 @@ procedure Build_MPD_File is
 
    package Command_Line_Processing is new Generic_Command_Line_Processing
      (Command_Line_Types  => Command_Line_Types,
-      Obligatory          => (others => False),
+      Obligatory          => (Model  => True,
+                              others => False),
       Minimum_Field_Count => (Model  | Path => 1,
                               others        => 0),
       Maximum_Field_Count => (Model | Collect => 1,
                               Path            => Natural'Last,
                               others          => 0),
-      Help                => (Model     => U (" <Model file name>"),
+      Help                => (Model     => U (" <Model file name> - " &
+                                                """.ldr"" or "".dat"" is " &
+                                                "not necessary."),
                               Overwrite => U (" - Don't check if the MPD " &
                                                 "file already exists."),
                               Path      => U (" <Directory> ... <Directory> " &
@@ -625,6 +631,7 @@ exception
       Ada.Text_IO.Put_Line
         (File => Ada.Text_IO.Current_Error,
          Item => "Build_MPD_File: An undocumented exception was raised. " &
-                 "Aborting ...");
+                 "Please contact the author of the program with details of " &
+                 "what happened. Aborting ...");
          raise;
 end Build_MPD_File;
