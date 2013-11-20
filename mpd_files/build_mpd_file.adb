@@ -36,6 +36,9 @@
 --      considered as valid extensions for LDraw files.
 --    ".ldr" is now the default extension for LDraw files.
 --
+--  2002.07.31 (Jacob Sparre Andersen)
+--    Modified the comment on where the software can be downloaded from.
+--
 --  (Insert additional update information above this line.)
 ------------------------------------------------------------------------------
 --  Standard packages:
@@ -443,13 +446,21 @@ begin --  Build_MPD_File
       end if;
 
       Put_Line (File => MPD_File,
-                Item => "Created with the MPD Builder: " &
-                        "http://hugin.ldraw.org/MPD_Builder/");
+                Item => "0 Created with the MPD Builder. Can be converted");
       Put_Line (File => MPD_File,
-                Item => "Can be splitted with the MPD Splitter: " &
-                        "http://hugin.ldraw.org/MPD_Splitter/");
+                Item => "0 to LDraw files using the MPD Splitter. Both can");
       Put_Line (File => MPD_File,
-                Item => "(L3P and LDLite can process MPD files directly)");
+                Item => "0 be downloaded from:");
+      Put_Line (File => MPD_File,
+                Item => "0");
+      Put_Line (File => MPD_File,
+                Item => "0    http://jacob.sparre.dk/Ada/mpd_files/");
+      Put_Line (File => MPD_File,
+                Item => "0");
+      Put_Line (File => MPD_File,
+                Item => "L3P, LDLite and LDGLite can process MPD files");
+      Put_Line (File => MPD_File,
+                Item => "directly.");
       New_Line (File => MPD_File);
 
       Insert (List => Unprocessed_Files,
