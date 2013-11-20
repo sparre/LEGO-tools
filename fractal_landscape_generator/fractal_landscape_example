@@ -1,0 +1,16 @@
+#!/bin/tcsh
+
+fractal_landscape -width 32 -height 32 -h 0.95 -z_max 30 > terrain.pgm
+pgm_to_ldraw -colour 2 -height 30 < terrain.pgm > terrain.dat
+ldglite-run -s0.5 terrain.dat
+
+pnmdepth 9 < terrain.pgm | pnmnoraw | perl -pe 's/^9$/382/' | perl -pe 's/(^| )[012]( |$)/ blue /g' | perl -pe 's/(^| )[34]( |$)/ sand /g' | perl -pe 's/(^| )[56789]( |$)/ green /g' | perl -pe 's/(^| )[012]( |$)/ blue /g' | perl -pe 's/(^| )[34]( |$)/ sand /g' | perl -pe 's/(^| )[56789]( |$)/ green /g' | perl -pe 's/blue/1/g' | perl -pe 's/sand/382/g' | perl -pe 's/green/2/g' > terrain-colour_map.pgm
+
+pgm_to_ldraw -map terrain-colour_map.pgm -height 30 < terrain.pgm > terrain.dat
+ldglite-run -s0.5 terrain.dat
+
+echo "P2\n1 1\n30\n8" | pnmscale -width 32 -height 32 > terrain-water_level.pgm
+pnmarith -maximum terrain-water_level.pgm terrain.pgm | pnmnoraw > terrain-level_water.pgm
+pgm_to_ldraw -map terrain-colour_map.pgm -height 30 < terrain-level_water.pgm > terrain.dat
+ldglite-run -s0.5 terrain.dat
+
