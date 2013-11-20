@@ -35,6 +35,9 @@
 --    Will per default build down to "ground level" at the edge. The command
 --      line argument "no_edge" disables this feature.
 --
+--  2001.08.10 (Jacob Sparre Andersen)
+--    Centers the landscape at (0,0) instead of at a corner.
+--
 --  (Insert additional update information above this line.)
 ------------------------------------------------------------------------------
 --  Standard packages:
@@ -370,16 +373,16 @@ begin --  PGM_To_LDraw
             if Use_Tall_Bricks then
                Put_Tall_Column
                  (File          => Current_Output,
-                  X             => X,
-                  Y             => Y,
+                  X             => X - Landscape'Length (1) / 2,
+                  Y             => Y - Landscape'Length (2) / 2,
                   Bottom        => Lowest_Neighbour (Landscape, X, Y),
                   Top           => Natural (Landscape (X, Y)),
                   Colour_Number => Colour_Number);
             else
                Put_Column
                  (File          => Current_Output,
-                  X             => X,
-                  Y             => Y,
+                  X             => X - Landscape'Length (1) / 2,
+                  Y             => Y - Landscape'Length (2) / 2,
                   Bottom        => Lowest_Neighbour (Landscape, X, Y),
                   Top           => Natural (Landscape (X, Y)),
                   Colour_Number => Colour_Number);
@@ -408,16 +411,16 @@ begin --  PGM_To_LDraw
             if Use_Tall_Bricks then
                Put_Tall_Column
                  (File          => Current_Output,
-                  X             => X,
-                  Y             => Y,
+                  X             => X - Landscape'Length (1) / 2,
+                  Y             => Y - Landscape'Length (2) / 2,
                   Bottom        => Lowest_Neighbour (Landscape, X, Y),          
                   Top           => Natural (Landscape (X, Y)),
                   Colour_Number => Natural (Colour_Map (X, Y)));          
             else
                Put_Column
                  (File          => Current_Output,
-                  X             => X,
-                  Y             => Y,
+                  X             => X - Landscape'Length (1) / 2,
+                  Y             => Y - Landscape'Length (2) / 2,
                   Bottom        => Lowest_Neighbour (Landscape, X, Y),
                   Top           => Natural (Landscape (X, Y)),
                   Colour_Number => Natural (Colour_Map (X, Y)));

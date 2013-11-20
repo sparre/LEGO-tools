@@ -17,6 +17,10 @@
 --  2001.08.10 (Jacob Sparre Andersen)
 --    Updated comments.
 --
+--  2001.08.19 (Jacob Sparre Andersen)
+--    Resetting Grid with a double loop (since "others => ..." resulted in
+--      run-time errors for large landscapes).
+--
 ------------------------------------------------------------------------------
 --  Standard packages:
 
@@ -115,7 +119,12 @@ package body Fractal_Images is
       Max_Level : Natural := 0;
 
    begin --  Mid_Point_FM_2D
-      Grid := (others => (others => 0.0));
+      --  Grid := (others => (others => 0.0));
+      for Index_1 in Grid'Range (1) loop
+         for Index_2 in Grid'Range (2) loop
+            Grid (Index_1, Index_2) := 0.0;
+         end loop;
+      end loop;
 
    Find_Maximimum_Number_Of_Levels:
      loop
