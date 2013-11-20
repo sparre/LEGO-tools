@@ -23,11 +23,18 @@
 --
 --  1999.02.11 (Jacob Sparre Andersen)
 --    Written based on Split_LDraw_File (1997.06.20 version).
+--
 --  1999.09.29 (Jacob Sparre Andersen)
 --    Added an "ad" for the MPD Builder to the resulting file.
 --    Added the options "-path" and "-collect".
+--
 --  1999.09.30 (Jacob Sparre Andersen)
 --    Terminates the file with a "NOFILE" comment.
+--
+--  2002.07.17 (Jacob Sparre Andersen)
+--    Modified the file name handling, so both ".dat" and ".ldr" are
+--      considered as valid extensions for LDraw files.
+--    ".ldr" is now the default extension for LDraw files.
 --
 --  (Insert additional update information above this line.)
 ------------------------------------------------------------------------------
@@ -402,9 +409,16 @@ begin --  Build_MPD_File
          Delete (Source  => Model_Name,
                  From    => Index (Model_Name, ".dat"),
                  Through => Length (Model_Name));
+         DAT_Name := Model_Name & ".dat";
+      elsif Index (Model_Name, ".ldr") > 0 then
+         Delete (Source  => Model_Name,
+                 From    => Index (Model_Name, ".ldr"),
+                 Through => Length (Model_Name));
+         DAT_Name := Model_Name & ".ldr";
+      else
+         DAT_Name := Model_Name & ".ldr";
       end if;
 
-      DAT_Name := Model_Name & ".dat";
       MPD_Name := Model_Name & ".mpd";
 
       Put_Line (File => Current_Error,
@@ -452,7 +466,7 @@ begin --  Build_MPD_File
 
       Remove_Scanned_Files:
          loop
-            exit Remove_Scanned_Files 
+            exit Remove_Scanned_Files
                when Is_Cursor_At_Rear (Unprocessed_Files);
 
             Find_And_Set_Cursor (List  => Scanned_Files,
