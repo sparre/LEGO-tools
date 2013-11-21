@@ -413,9 +413,9 @@ begin --  PGM_To_LDraw
                  (File          => Current_Output,
                   X             => X - Landscape'Length (1) / 2,
                   Y             => Y - Landscape'Length (2) / 2,
-                  Bottom        => Lowest_Neighbour (Landscape, X, Y),          
+                  Bottom        => Lowest_Neighbour (Landscape, X, Y),
                   Top           => Natural (Landscape (X, Y)),
-                  Colour_Number => Natural (Colour_Map (X, Y)));          
+                  Colour_Number => Natural (Colour_Map (X, Y)));
             else
                Put_Column
                  (File          => Current_Output,

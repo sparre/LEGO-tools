@@ -1,4 +1,4 @@
-package body Ustrings is
+package body UStrings is
 
   Input_Line_Buffer_Length : constant := 1024;
     -- If an input line is longer, Get_Line will recurse to read in the line.
@@ -18,7 +18,7 @@ package body Ustrings is
   begin
    return (Length(S) = 0);
   end Empty;
- 
+
 
   -- Implement Unbounded_String I/O by calling Text_IO String routines.
 
@@ -73,4 +73,4 @@ package body Ustrings is
     New_Line;
   end Put_Line;
 
-end Ustrings;
+end UStrings;

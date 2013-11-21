@@ -15,7 +15,6 @@
 --  Standard packages:
 
 with Ada.Strings.Unbounded;
-with Ada.Text_IO;
 
 ------------------------------------------------------------------------------
 
@@ -30,7 +29,7 @@ package Generic_Command_Line_Types is
 
    subtype Argument_Range is Argument_Names;
 
-   ---------------------------------------------------------------------------  
+   ---------------------------------------------------------------------------
    --  type Boolean_Array:
 
    type Boolean_Array is array (Argument_Names) of Boolean;

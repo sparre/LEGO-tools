@@ -27,11 +27,11 @@ package Fractal_Images is
 
    ---------------------------------------------------------------------------
    --  procedure Mid_Point_FM_2D:
- 
+
    procedure Mid_Point_FM_2D (Grid     :    out Grid_Type;
                               Sigma, H : in     Float;
                               Addition : in     Boolean);
- 
+
    ---------------------------------------------------------------------------
 
 end Fractal_Images;

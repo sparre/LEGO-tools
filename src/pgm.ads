@@ -102,7 +102,7 @@ package PGM is
    procedure Save (File : in     Ada.Text_IO.File_Type;
                    Item : in     Pixmap_16_Bit);
 
-   ---------------------------------------------------------------------------  
+   ---------------------------------------------------------------------------
    --  procedure Save:
    --
    --  Writes a PGM file.
@@ -118,7 +118,7 @@ package PGM is
    procedure Save (Name : in     String;
                    Item : in     Pixmap_16_Bit);
 
-   ---------------------------------------------------------------------------  
+   ---------------------------------------------------------------------------
    --  procedure Save:
    --
    --  Writes a PGM file.

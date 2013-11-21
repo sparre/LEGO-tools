@@ -35,30 +35,6 @@ with Ada.Text_IO;
 package body File_System is
 
    ---------------------------------------------------------------------------
-   --  Exists:
-
-   function Exists (File_Name : in String) return Boolean is
-
-      use Ada.Text_IO;
-
-      Dummy : File_Type;
-
-   begin --  Exists
-      Open  (File => Dummy, Name => File_Name, Mode => In_File);
-      Close (File => Dummy);
-
-      return True;
-   exception
-      when Name_Error =>
-         return False;
-      when others =>
-         Put_Line
-           (File => Ada.Text_IO.Current_Output,
-            Item => "File_System.Exists: Unexpected exception.");
-         raise;
-   end Exists;
-
-   ---------------------------------------------------------------------------
    --  procedure Copy:
    --
    --  Copies a file named From to a file named To.
@@ -112,27 +88,28 @@ package body File_System is
    end Delete;
 
    ---------------------------------------------------------------------------
-   --  function Size:
-   --
-   --  Returns the file size in bytes.
+   --  Exists:
 
-   function Size (Name : in     String) return Natural is
+   function Exists (File_Name : in String) return Boolean is
 
-      use Ada.Streams;
-      use Ada.Streams.Stream_IO;
+      use Ada.Text_IO;
 
-      File   : File_Type;
-      Result : Natural;
+      Dummy : File_Type;
 
-   begin --  Size
-      Open (File => File,
-            Name => Name,
-            Mode => In_File);
-      Result := Natural (Size (File => File)) * Stream_Element'Size / 8;
-      Close (File => File);
+   begin --  Exists
+      Open  (File => Dummy, Name => File_Name, Mode => In_File);
+      Close (File => Dummy);
 
-      return Result;
-   end Size;
+      return True;
+   exception
+      when Name_Error =>
+         return False;
+      when others =>
+         Put_Line
+           (File => Ada.Text_IO.Current_Output,
+            Item => "File_System.Exists: Unexpected exception.");
+         raise;
+   end Exists;
 
    ---------------------------------------------------------------------------
    --  procedure Find_File:
@@ -164,6 +141,29 @@ package body File_System is
 
       Found_It := False;
    end Find_File;
+
+   ---------------------------------------------------------------------------
+   --  function Size:
+   --
+   --  Returns the file size in bytes.
+
+   function Size (Name : in     String) return Natural is
+
+      use Ada.Streams;
+      use Ada.Streams.Stream_IO;
+
+      File   : File_Type;
+      Result : Natural;
+
+   begin --  Size
+      Open (File => File,
+            Name => Name,
+            Mode => In_File);
+      Result := Natural (Size (File => File)) * Stream_Element'Size / 8;
+      Close (File => File);
+
+      return Result;
+   end Size;
 
    ---------------------------------------------------------------------------
 

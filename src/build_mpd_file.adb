@@ -50,9 +50,10 @@
 ------------------------------------------------------------------------------
 --  Standard packages:
 
-with Ada.Characters.Handling;
-with Ada.Strings.Unbounded;
-with Ada.Text_IO;
+with Ada.Characters.Handling,
+     Ada.Containers.Indefinite_Ordered_Sets,
+     Ada.Strings.Unbounded,
+     Ada.Text_IO;
 
 ------------------------------------------------------------------------------
 --  GNAT packages:
@@ -67,7 +68,6 @@ with GNAT.OS_Lib;
 with File_System;
 with Generic_Command_Line_Processing;
 with Generic_Command_Line_Types;
-with List_Of_Static_Items_G;
 with String_Arrays;
 with UStrings;
 
@@ -128,12 +128,62 @@ procedure Build_MPD_File is
    ---------------------------------------------------------------------------
    --  package String_Lists:
 
-   package String_Lists is new List_Of_Static_Items_G
-     (Item_Type => Ada.Strings.Unbounded.Unbounded_String,
-      Equals    => Ada.Strings.Unbounded."=");
+   package String_Lists is new Ada.Containers.Indefinite_Ordered_Sets
+     (Element_Type => Ada.Strings.Unbounded.Unbounded_String,
+      "<"          => Ada.Strings.Unbounded."<",
+      "="          => Ada.Strings.Unbounded."=");
 
    ---------------------------------------------------------------------------
-   --  function Is_Meta_Command:
+
+   function Is_Meta_Command (Line      : in     UStrings.UString;
+                             Command   : in     String) return Boolean;
+
+   function Is_Subfile_Command (Line  : in     UStrings.UString)
+     return Boolean;
+
+   procedure Extract_Subfile_Name (Line         : in     UStrings.UString;
+                                   Subfile_Name :    out UStrings.UString);
+
+   ---------------------------------------------------------------------------
+
+   procedure Extract_Subfile_Name (Line         : in     UStrings.UString;
+                                   Subfile_Name :    out UStrings.UString) is
+
+      use Ada.Characters.Handling;
+      use Ada.Strings;
+      use Ada.Strings.Unbounded;
+
+      Buffer    : Unbounded_String;
+      Separator : Natural;
+
+   begin --  Extract_Subfile_Name
+      Buffer := Trim (Source => Line,
+                      Side   => Both);
+
+      if Slice (Source => Buffer,
+                Low    => 1,
+                High   => 2) = "1 " then
+         Separator := Index (Source  => Buffer,
+                             Pattern => " ",
+                             Going   => Backward);
+         Subfile_Name := Delete (Source  => Buffer,
+                                 From    => 1,
+                                 Through => Separator);
+         Translate (Source  => Subfile_Name,
+                    Mapping => To_Lower'Access);
+      else
+         raise Bad_LDraw_Command;
+      end if;
+   exception
+      when Bad_LDraw_Command =>
+         raise;
+      when others =>
+         Ada.Text_IO.Put_Line
+           (File => Ada.Text_IO.Current_Error,
+            Item => "Build_MPD_File.Extract_Subfile_Name: An " &
+                    "unexpected exception occured. Aborting...");
+         raise;
+   end Extract_Subfile_Name;
 
    function Is_Meta_Command (Line      : in     UStrings.UString;
                              Command   : in     String) return Boolean is
@@ -176,9 +226,6 @@ procedure Build_MPD_File is
          raise;
    end Is_Meta_Command;
 
-   ---------------------------------------------------------------------------
-   --  function Is_Subfile_Command:
-
    function Is_Subfile_Command (Line  : in     UStrings.UString)
      return Boolean is
 
@@ -212,104 +259,16 @@ procedure Build_MPD_File is
    end Is_Subfile_Command;
 
    ---------------------------------------------------------------------------
-   --  procedure Split_LDraw_Meta_Command:
-
-   procedure Split_LDraw_Meta_Command (Line      : in     UStrings.UString;
-                                       Command   :    out UStrings.UString;
-                                       Arguments : in out UStrings.UString) is
-
-      use Ada.Characters.Handling;
-      use Ada.Strings;
-      use Ada.Strings.Unbounded;
-
-      Buffer    : Unbounded_String;
-      Separator : Natural;
-
-   begin --  Split_LDraw_Meta_Command
-      Buffer := Trim (Source => Line,
-                      Side   => Both);
-
-      if Slice (Source => Buffer,
-                Low    => 1,
-                High   => 2) = "0 " then
-         Delete (Source  => Buffer,
-                 From    => 1,
-                 Through => 2);
-         Separator := Index (Source  => Buffer & " ",
-                             Pattern => " ");
-
-         Command := To_Unbounded_String (Slice (Source => Buffer,
-                                                Low    => 1,
-                                                High   => Separator - 1));
-         Arguments := To_Unbounded_String (Slice (Source => Buffer,
-                                                  Low    => Separator + 1,
-                                                  High   => Length (Buffer)));
-      else
-         raise Bad_LDraw_Command;
-      end if;
-   exception
-      when Bad_LDraw_Command =>
-         raise;
-      when others =>
-         Ada.Text_IO.Put_Line
-           (File => Ada.Text_IO.Current_Error,
-            Item => "Build_MPD_File.Split_LDraw_Meta_Command: An " &
-                    "unexpected exception occured. Aborting...");
-         raise;
-   end Split_LDraw_Meta_Command;
-
-   ---------------------------------------------------------------------------
-   --  procedure Extract_Subfile_Name:
-
-   procedure Extract_Subfile_Name (Line         : in     UStrings.UString;
-                                   Subfile_Name :    out UStrings.UString) is
-
-      use Ada.Characters.Handling;
-      use Ada.Strings;
-      use Ada.Strings.Unbounded;
-
-      Buffer    : Unbounded_String;
-      Separator : Natural;
-
-   begin --  Extract_Subfile_Name
-      Buffer := Trim (Source => Line,
-                      Side   => Both);
-
-      if Slice (Source => Buffer,
-                Low    => 1,
-                High   => 2) = "1 " then
-         Separator := Index (Source  => Buffer,
-                             Pattern => " ",
-                             Going   => Backward);
-         Subfile_Name := Delete (Source  => Buffer,
-                                 From    => 1,
-                                 Through => Separator);
-         Translate (Source  => Subfile_Name,
-                    Mapping => To_Lower'Access);
-      else
-         raise Bad_LDraw_Command;
-      end if;
-   exception
-      when Bad_LDraw_Command =>
-         raise;
-      when others =>
-         Ada.Text_IO.Put_Line
-           (File => Ada.Text_IO.Current_Error,
-            Item => "Build_MPD_File.Extract_Subfile_Name: An " &
-                    "unexpected exception occured. Aborting...");
-         raise;
-   end Extract_Subfile_Name;
-
-   ---------------------------------------------------------------------------
    --  File lists:
 
-   Scanned_Files     : String_Lists.List_Type;
-   Unavailable_Files : String_Lists.List_Type;
-   Unprocessed_Files : String_Lists.List_Type;
+   Scanned_Files     : String_Lists.Set;
+   Unavailable_Files : String_Lists.Set;
+   Unprocessed_Files : String_Lists.Set;
 
    ---------------------------------------------------------------------------
    --  procedure Scan_File:
 
+   procedure Scan_File (File_Name : in     String);
    procedure Scan_File (File_Name : in     String) is
 
       use Ada.Text_IO;
@@ -336,13 +295,14 @@ procedure Build_MPD_File is
             Extract_Subfile_Name (Line         => Current_Line,
                                   Subfile_Name => Subfile_Name);
 
-            Insert (List => Unprocessed_Files,
-                    Item => Subfile_Name);
+            Unprocessed_Files.Insert (Subfile_Name);
          end if;
       end loop;
 
       Close (File => Model);
-
+      
+      Scanned_Files.Insert (File_Name);
+      
       Put_Line (File => Current_Error,
                 Item => "Done.");
    exception
@@ -373,14 +333,13 @@ procedure Build_MPD_File is
    use Command_Line_Processing;
    use File_System;
    use String_Arrays;
-   use String_Lists;
+   --  use String_Lists;
    use UStrings;
 
    Model_Name         : UString;
    DAT_Name, MPD_Name : UString;
    DAT_File, MPD_File : File_Type;
 
-   Current_File : File_Type;
    Current_Line : UString;
 
    Is_Scanned, Is_Unavailable : Boolean;
@@ -473,94 +432,40 @@ begin --  Build_MPD_File
                 Item => "0 directly.");
       New_Line (File => MPD_File);
 
-      Insert (List => Unprocessed_Files,
-              Item => DAT_Name);
+      Unprocessed_Files.Insert (DAT_Name);
 
       Put_Line (File => Current_Error,
                 Item => "Scanning LDraw files...");
 
-   Scan_Unprocessed_Files:
+      Scan_Unprocessed_Files :
       loop
-         exit Scan_Unprocessed_Files when Is_Empty (Unprocessed_Files);
+	 Unprocessed_Files := Unprocessed_Files - Scanned_Files;
+	 Unprocessed_Files := Unprocessed_Files - Unavailable_Files;
+	 
+         exit Scan_Unprocessed_Files when Unprocessed_Files.Is_Empty;
+	 
+	 declare
+	    To_Process : constant String_Lists.Set := Unprocessed_Files;
+	 begin
+	    for File_Name of To_Process loop
+	       if Scanned_Files.Contains (File_Name) then
+		  null;
+	       elsif Unavailable_Files.Contains (File_Name) then
+		  null;
+	       else
+		  Find_File (File_Name => File_Name,
+			     Path      => Paths,
+			     Found_It  => Found_File);
 
-         Set_Cursor_At_Front (List => Unprocessed_Files);
-
-      Remove_Scanned_Files:
-         loop
-            exit Remove_Scanned_Files
-               when Is_Cursor_At_Rear (Unprocessed_Files);
-
-            Find_And_Set_Cursor (List  => Scanned_Files,
-                                 Item  => Get (Unprocessed_Files),
-                                 Found => Is_Scanned);
-
-            if Is_Scanned then
-               Remove (List => Unprocessed_Files);
-            else
-               Move_Cursor_To_Next (List => Unprocessed_Files);
-            end if;
-         end loop Remove_Scanned_Files;
-
-         Set_Cursor_At_Front (List => Unprocessed_Files);
-
-      Remove_Unavailable_Files:
-         loop
-            exit Remove_Unavailable_Files
-               when Is_Cursor_At_Rear (Unprocessed_Files);
-
-            Find_And_Set_Cursor (List  => Unavailable_Files,
-                                 Item  => Get (Unprocessed_Files),
-                                 Found => Is_Unavailable);
-
-            if Is_Unavailable then
-               Remove (List => Unprocessed_Files);
-            else
-               Full_File_Name := Get (Unprocessed_Files);
-               Find_File (File_Name => Full_File_Name,
-                          Path      => Paths,
-                          Found_It  => Found_File);
-
-               if Found_File then
-                  Move_Cursor_To_Next (List => Unprocessed_Files);
-               else
-                  Insert (List => Unavailable_Files,
-                          Item => Get (Unprocessed_Files));
-                  Remove (List => Unprocessed_Files);
-               end if;
-            end if;
-         end loop Remove_Unavailable_Files;
-
-         Set_Cursor_At_Front (List => Unprocessed_Files);
-
-      Scan_Files:
-         loop
-            exit Scan_Files when Is_Cursor_At_Rear (Unprocessed_Files);
-
-            DAT_Name := Get (List => Unprocessed_Files);
-            Remove (List => Unprocessed_Files);
-
-            Find_And_Set_Cursor (List  => Scanned_Files,
-                                 Item  => DAT_Name,
-                                 Found => Is_Scanned);
-
-            if Is_Scanned then
-               null;
-            else
-               Full_File_Name := DAT_Name;
-               Find_File (File_Name => Full_File_Name,
-                          Path      => Paths,
-                          Found_It  => Found_File);
-
-               if Found_File then
-                  Scan_File (File_Name => S (Full_File_Name));
-                  Insert (List => Scanned_Files,
-                          Item => DAT_Name);
-               else
-                  Insert (List => Unavailable_Files,
-                          Item => DAT_Name);
-               end if;
-            end if;
-         end loop Scan_Files;
+		  if Found_File then
+		     Scan_File (File_Name => S (File_Name));
+		     Scanned_Files.Insert (File_Name);
+		  else
+		     Unavailable_Files.Insert (File_Name);
+		  end if;
+	       end if;
+	    end loop;
+	 end;
       end loop Scan_Unprocessed_Files;
 
       Put_Line (File => Current_Error,
@@ -568,7 +473,7 @@ begin --  Build_MPD_File
 
       Set_Cursor_At_Front (List => Scanned_Files);
 
-   Collect_Files:
+      Collect_Files :
       while not Is_Empty (Scanned_Files) loop
          DAT_Name := Get (Scanned_Files);
          Remove (Scanned_Files);

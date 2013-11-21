@@ -38,7 +38,7 @@ package body Fractal_Images is
 
    ---------------------------------------------------------------------------
    --  procedure Mid_Point_FM_2D:
- 
+
    procedure Mid_Point_FM_2D (Grid     :    out Grid_Type;
                               Sigma, H : in     Float;
                               Addition : in     Boolean) is
@@ -133,7 +133,7 @@ package body Fractal_Images is
 
          Max_Level := Max_Level + 1;
       end loop Find_Maximimum_Number_Of_Levels;
-            
+
       Reset;
       N := 2 ** Max_Level;
       Diff := Sigma;
@@ -274,7 +274,7 @@ package body Fractal_Images is
                     Grid (Ix (x1), Iy (y1)) + Diff * Gauss;
                   Inc (y1, D2);
                end loop;
- 
+
                Inc(x1,D2);
             end loop;
          end IF;

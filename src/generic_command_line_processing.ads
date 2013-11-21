@@ -48,11 +48,10 @@ generic
 
 package Generic_Command_Line_Processing is
 
-   ---------------------------------------------------------------------------  
+   ---------------------------------------------------------------------------
    --  Exceptions:
 
-   Argument_Error : exception; --  Raised in case of bad command line
-                               --  arguments.
+   Argument_Error : exception; --  In case of bad command line arguments.
 
    ---------------------------------------------------------------------------
    --  subtype Argument_Names:
@@ -111,7 +110,7 @@ package Generic_Command_Line_Processing is
 
    function Field_Count (Argument : Argument_Names) return Natural;
 
-   ---------------------------------------------------------------------------  
+   ---------------------------------------------------------------------------
    --  function Value:
    --
    --  Returns the Index field for Argument.
@@ -146,7 +145,7 @@ package Generic_Command_Line_Processing is
    function Value (Argument : Argument_Names;
                    Index    : Positive) return Integer;
 
-   ---------------------------------------------------------------------------  
+   ---------------------------------------------------------------------------
    --  function Value:
    --
    --  Returns the Index field for Argument (or Default).

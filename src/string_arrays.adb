@@ -273,7 +273,7 @@ package body String_Arrays is
    --  Removes all elements in Elements from Set.
    --
    --  Exception:
-   --    Constraint_Error - if Elements is not a subset of Set. 
+   --    Constraint_Error - if Elements is not a subset of Set.
 
    procedure Remove_Subset (Elements      : in     String_Array_Type;
                             Set           : in out String_Array_Reference;

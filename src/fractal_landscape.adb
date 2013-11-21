@@ -2,7 +2,7 @@
 --
 --  procedure Fractal_Landscape (body)
 --
---  This procedure generates a fractal landscape based on the parameters 
+--  This procedure generates a fractal landscape based on the parameters
 --  'H' and 'Z_Max'.
 --
 --  The size of the landscape is set with the parameters 'width' and 'height'.
@@ -15,7 +15,7 @@
 --
 --  1997.04.30 (Jacob Sparre Andersen)
 --    Added a 'z_max' command line argument.
---   
+--
 --  1997.05.09 (Jacob Sparre Andersen)
 --    Removed the '-Sigma' argument.
 --    Writing the fractal dimension to Current_Error.

@@ -1,7 +1,7 @@
 with Text_IO, Ada.Strings.Unbounded;
 use  Text_IO, Ada.Strings.Unbounded;
 
-package Ustrings is
+package UStrings is
 
   -- This package provides a simpler way to work with type
   -- Unbounded_String, since this type will be used very often.
@@ -10,9 +10,9 @@ package Ustrings is
   --
 
   -- This package provides the following simplifications:
-  --  + Shortens the type name from "Unbounded_String" to "Ustring".
+  --  + Shortens the type name from "Unbounded_String" to "UString".
   --  + Creates shorter function names for To_Unbounded_String, i.e.
-  --    To_Ustring(U) and U(S).  "U" is not a very readable name, but
+  --    To_UString(U) and U(S).  "U" is not a very readable name, but
   --    it's such a common operation that a short name seems appropriate
   --    (this function is needed every time a String constant is used).
   --    It also creates S(U) as the reverse of U(S).
@@ -27,9 +27,9 @@ package Ustrings is
   -- as the original developer.
 
 
-  subtype Ustring is Unbounded_String;
+  subtype UString is Unbounded_String;
 
-  function To_Ustring(Source : String)  return Unbounded_String
+  function To_UString(Source : String)  return Unbounded_String
                                          renames To_Unbounded_String;
   function U(Source : String)           return Unbounded_String
                                          renames To_Unbounded_String;
@@ -56,4 +56,4 @@ package Ustrings is
   procedure Put_Line(File : in File_Type; Item : in Unbounded_String);
   procedure Put_Line(Item : in Unbounded_String);
 
-end Ustrings;
+end UStrings;
