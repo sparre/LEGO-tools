@@ -513,6 +513,18 @@ package body Generic_Command_Line_Processing is
          raise;
    end Value;
 
+   function Values (Argument : Argument_Names) return String_Arrays.Instance is
+   begin
+      return Result : String_Arrays.Instance
+                        (1 .. Argument_Field_Count (Argument))
+      do
+         for I in Result'Range loop
+            Result (I) := Ada.Strings.Unbounded.To_Unbounded_String
+                            (String'(Value (Argument, I)));
+         end loop;
+      end return;
+   end Values;
+
    ---------------------------------------------------------------------------
 
 begin --  Generic_Command_Line_Processing

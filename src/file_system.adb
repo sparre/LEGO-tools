@@ -34,22 +34,15 @@ with Ada.Text_IO;
 
 package body File_System is
 
-   ---------------------------------------------------------------------------
-   --  procedure Copy:
-   --
-   --  Copies a file named From to a file named To.
-
    procedure Copy (From : in     String;
                    To   : in     String) is
-
       use Ada.Streams;
       use Ada.Streams.Stream_IO;
 
       Buffer         : Stream_Element_Array (0 .. 4095);
       Filled_To      : Stream_Element_Offset;
       Source, Target : File_Type;
-
-   begin --  Copy
+   begin
       Open (File => Source,
             Name => From,
             Mode => In_File);
@@ -69,33 +62,21 @@ package body File_System is
       Close (File => Target);
    end Copy;
 
-   ---------------------------------------------------------------------------
-   --  procedure Delete:
-   --
-   --  Deletes the file named Name.
-
    procedure Delete (Name : in     String) is
-
       use Ada.Streams.Stream_IO;
 
       File : File_Type;
-
-   begin --  Delete
+   begin
       Open (File => File,
             Name => Name,
             Mode => In_File);
       Delete (File => File);
    end Delete;
 
-   ---------------------------------------------------------------------------
-   --  Exists:
-
    function Exists (File_Name : in String) return Boolean is
-
       use Ada.Text_IO;
 
       Dummy : File_Type;
-
    begin --  Exists
       Open  (File => Dummy, Name => File_Name, Mode => In_File);
       Close (File => Dummy);
@@ -111,22 +92,13 @@ package body File_System is
          raise;
    end Exists;
 
-   ---------------------------------------------------------------------------
-   --  procedure Find_File:
-   --
-   --  Locates a file with the name File_Name in one of the catalogs in Path.
-   --  If the file is found, File_Name is set to the full path and file name
-   --  and Found_It is set to true.
-   --  Otherwise Found_It is set to false, and File_Name is unchanged.
-
    procedure Find_File
      (File_Name : in out Ada.Strings.Unbounded.Unbounded_String;
-      Path      : in     String_Arrays.String_Array_Reference;
+      Path      : in     String_Arrays.Instance;
       Found_It  :    out Boolean) is
 
       use Ada.Strings.Unbounded;
-
-   begin --  Find_File
+   begin
       for Index in Path'Range loop
          if Exists (To_String (Path (Index) & File_Name)) then
             File_Name := Path (Index) & File_Name;
@@ -142,20 +114,13 @@ package body File_System is
       Found_It := False;
    end Find_File;
 
-   ---------------------------------------------------------------------------
-   --  function Size:
-   --
-   --  Returns the file size in bytes.
-
    function Size (Name : in     String) return Natural is
-
       use Ada.Streams;
       use Ada.Streams.Stream_IO;
 
       File   : File_Type;
       Result : Natural;
-
-   begin --  Size
+   begin
       Open (File => File,
             Name => Name,
             Mode => In_File);
@@ -164,7 +129,5 @@ package body File_System is
 
       return Result;
    end Size;
-
-   ---------------------------------------------------------------------------
 
 end File_System;

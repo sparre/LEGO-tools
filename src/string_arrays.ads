@@ -32,11 +32,13 @@ package String_Arrays is
 
    type String_Array_Type is array (Positive range <>) of
      Ada.Strings.Unbounded.Unbounded_String;
+   subtype Instance is String_Array_Type;
 
    ---------------------------------------------------------------------------
    --  type String_Array_Reference:
 
    type String_Array_Reference is access all String_Array_Type;
+   subtype Reference is String_Array_Reference;
 
    ---------------------------------------------------------------------------
    --  procedure Split:

@@ -1,37 +1,8 @@
-------------------------------------------------------------------------------
---
---  package Generic_Command_Line_Processing (spec)
---
---  This package is used to process command line arguments.
---
-------------------------------------------------------------------------------
---  Update information:
---
---  1997.03.18 (Jacob Sparre Andersen)
---    Written.
---
---  1997.03.19 (Jacob Sparre Andersen)
---    Renamed generic parameter Argument_Help to Help.
---    Added generic parameter Check_Arguments.
---
---  1997.04.10 (Jacob Sparre Andersen)
---    Added function All_Arguments_Valid.
---
---  2001.08.10 (Jacob Sparre Andersen)
---    Extended the comments a bit.
---
---  (Insert additional update information above this line.)
-------------------------------------------------------------------------------
---  Standard packages:
-
-with Ada.Text_IO;
-
-------------------------------------------------------------------------------
---  Other packages:
-
-with Generic_Command_Line_Types;
-
-------------------------------------------------------------------------------
+with
+  Ada.Text_IO;
+with
+  Generic_Command_Line_Types,
+  String_Arrays;
 
 generic
 
@@ -120,6 +91,8 @@ package Generic_Command_Line_Processing is
 
    function Value (Argument : Argument_Names;
                    Index    : Positive) return String;
+
+   function Values (Argument : Argument_Names) return String_Arrays.Instance;
 
    ---------------------------------------------------------------------------
    --  function Value:

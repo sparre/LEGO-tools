@@ -26,4 +26,8 @@ obj/*.ali
 obj/*.o
 
 # Generated executables:
+bin/build_mpd_file
+bin/fractal_landscape
+bin/pgm_to_ldraw
+bin/split_ldraw_file
 

@@ -83,13 +83,20 @@ procedure Fractal_Landscape is
    ---------------------------------------------------------------------------
    --  function Subset:
 
-   function Subset (Grid         : in     Fractal_Images.Grid_Reference;
-                    Min_X, Max_X : in     Integer;
-                    Min_Y, Max_Y : in     Integer;
-                    Min_Z        : in     PGM.Grey_16_Bit :=
-                                            PGM.Grey_16_Bit'First;
-                    Max_Z        : in     PGM.Grey_16_Bit :=
-                                            PGM.Grey_16_Bit'Last)
+   function Subset
+     (Grid         : in     Fractal_Images.Grid_Reference;
+      Min_X, Max_X : in     Integer;
+      Min_Y, Max_Y : in     Integer;
+      Min_Z        : in     PGM.Grey_16_Bit := PGM.Grey_16_Bit'First;
+      Max_Z        : in     PGM.Grey_16_Bit := PGM.Grey_16_Bit'Last)
+     return PGM.Pixmaps_16_Bit.Pixmap_Reference;
+
+   function Subset
+     (Grid         : in     Fractal_Images.Grid_Reference;
+      Min_X, Max_X : in     Integer;
+      Min_Y, Max_Y : in     Integer;
+      Min_Z        : in     PGM.Grey_16_Bit := PGM.Grey_16_Bit'First;
+      Max_Z        : in     PGM.Grey_16_Bit := PGM.Grey_16_Bit'Last)
      return PGM.Pixmaps_16_Bit.Pixmap_Reference is
 
       use PGM;
@@ -114,7 +121,7 @@ procedure Fractal_Landscape is
             end loop;
          end loop;
 
-         Offset := - Min_Float_Z;
+         Offset := -Min_Float_Z;
          Factor := Float (Max_Z - Min_Z) / (Max_Float_Z - Min_Float_Z);
 
          for X in Min_X .. Max_X loop
