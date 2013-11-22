@@ -38,7 +38,8 @@ procedure OS.Make_Directory (Name : in     String) is
    pragma Import (C, system);
 
    Command_In_C_Format : chars_ptr := New_String ("mkdir " & Name);
-   Error_Code          : Interfaces.C.int := system (Command_In_C_Format);
+   Error_Code          : constant Interfaces.C.int :=
+                           system (Command_In_C_Format);
 
 begin --  OS.Make_Directory
    Free (Command_In_C_Format);

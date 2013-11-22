@@ -144,6 +144,42 @@ package body LDraw_Processing is
       return File_Name & "." & Image (New_Extension);
    end Set_Extension;
 
+   procedure Split_LDraw_Meta_Command
+     (Line      : in     Ada.Strings.Unbounded.Unbounded_String;
+      Command   :    out Ada.Strings.Unbounded.Unbounded_String;
+      Arguments : in out Ada.Strings.Unbounded.Unbounded_String) is
+
+      use Ada.Characters.Handling;
+      use Ada.Strings;
+      use Ada.Strings.Unbounded;
+
+      Buffer    : Unbounded_String;
+      Separator : Natural;
+
+   begin --  Split_LDraw_Meta_Command
+      Buffer := Trim (Source => Line,
+                      Side   => Both);
+
+      if Slice (Source => Buffer,
+                Low    => 1,
+                High   => 2) = "0 " then
+         Delete (Source  => Buffer,
+                 From    => 1,
+                 Through => 2);
+         Separator := Index (Source  => Buffer & " ",
+                             Pattern => " ");
+
+         Command := To_Unbounded_String (Slice (Source => Buffer,
+                                                Low    => 1,
+                                                High   => Separator - 1));
+         Arguments := To_Unbounded_String (Slice (Source => Buffer,
+                                                  Low    => Separator + 1,
+                                                  High   => Length (Buffer)));
+      else
+         raise Bad_LDraw_Command;
+      end if;
+   end Split_LDraw_Meta_Command;
+
    function Tail_Match (Item, Tail : in     String) return Boolean is
       use Ada.Characters.Handling, Ada.Strings;
    begin

@@ -15,6 +15,11 @@ package LDraw_Processing is
      (Line      : in     Ada.Strings.Unbounded.Unbounded_String;
       Command   : in     String) return Boolean;
 
+   procedure Split_LDraw_Meta_Command
+     (Line      : in     Ada.Strings.Unbounded.Unbounded_String;
+      Command   :    out Ada.Strings.Unbounded.Unbounded_String;
+      Arguments : in out Ada.Strings.Unbounded.Unbounded_String);
+
    function Is_Subfile_Command
      (Line  : in     Ada.Strings.Unbounded.Unbounded_String) return Boolean;
 

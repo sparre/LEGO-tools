@@ -41,58 +41,37 @@
 ------------------------------------------------------------------------------
 --  Standard packages:
 
-with Ada.Characters.Handling;
-with Ada.Strings.Maps.Constants;
-with Ada.Strings.Unbounded;
-with Ada.Text_IO;
-
-------------------------------------------------------------------------------
---  GNAT specific packages:
---
---  Used to get Is_Directory and Directory_Separator.
-
-with GNAT.OS_Lib;
-
-------------------------------------------------------------------------------
---  Other packages:
-
-with File_System;
-with Generic_Command_Line_Processing;
-with Generic_Command_Line_Types;
-with OS.Make_Directory;
-with UStrings;
-
-------------------------------------------------------------------------------
+with
+  Ada.Characters.Handling,
+  Ada.Strings.Maps.Constants,
+  Ada.Strings.Unbounded,
+  Ada.Text_IO,
+  Ada.Text_IO.Unbounded_IO;
+with
+  GNAT.OS_Lib;  --  Used to get Is_Directory and Directory_Separator.
+with
+  File_System,
+  Generic_Command_Line_Processing,
+  Generic_Command_Line_Types,
+  LDraw_Processing,
+  OS.Make_Directory;
 
 procedure Split_LDraw_File is
 
-   ---------------------------------------------------------------------------
-   --  Exceptions:
-
-   Bad_LDraw_Command : exception;
    Bad_File_Name     : exception;
 
    ---------------------------------------------------------------------------
-   --  type Argument_Names:
+   --  Command line processing:
 
    type Argument_Names is (Help, MPD, Overwrite, Show_Comments,
                            Create_Directories, Preserve_Case);
 
-   ---------------------------------------------------------------------------
-   --  package Command_Line_Types:
-
    package Command_Line_Types is
      new Generic_Command_Line_Types (Argument_Names => Argument_Names);
-
-   ---------------------------------------------------------------------------
-   --  function U:
 
    function U (Item : in     String)
      return Ada.Strings.Unbounded.Unbounded_String
      renames Ada.Strings.Unbounded.To_Unbounded_String;
-
-   ---------------------------------------------------------------------------
-   --  package Command_Line_Processing:
 
    package Command_Line_Processing is new Generic_Command_Line_Processing
      (Command_Line_Types  => Command_Line_Types,
@@ -116,113 +95,50 @@ procedure Split_LDraw_File is
          others             => U (" - Show this message.")));
 
    ---------------------------------------------------------------------------
-   --  function Is_Meta_Command:
-
-   function Is_Meta_Command (Line      : in     UStrings.UString;
-                             Command   : in     String) return Boolean is
-
-      use Ada.Characters.Handling;
-      use Ada.Strings;
-      use Ada.Strings.Unbounded;
-
-      Buffer    : Unbounded_String;
-      Separator : Natural;
-
-   begin --  Is_Meta_Command
-      Buffer := Trim (Source => Line,
-                      Side   => Both);
-
-      if Length (Buffer) < 3 then
-         return False;
-      elsif Slice (Source => Buffer,
-                Low    => 1,
-                High   => 2) = "0 " then
-         Delete (Source  => Buffer,
-                 From    => 1,
-                 Through => 2);
-         Separator := Index (Source  => Buffer & " ",
-                             Pattern => " ");
-
-         return
-           To_Upper (Command) = To_Upper (Slice (Source => Buffer,
-                                                 Low    => 1,
-                                                 High   => Separator - 1));
-      else
-         return False;
-      end if;
-   end Is_Meta_Command;
-
-   ---------------------------------------------------------------------------
-   --  procedure Split_LDraw_Meta_Command:
-
-   procedure Split_LDraw_Meta_Command (Line      : in     UStrings.UString;
-                                       Command   :    out UStrings.UString;
-                                       Arguments : in out UStrings.UString) is
-
-      use Ada.Characters.Handling;
-      use Ada.Strings;
-      use Ada.Strings.Unbounded;
-
-      Buffer    : Unbounded_String;
-      Separator : Natural;
-
-   begin --  Split_LDraw_Meta_Command
-      Buffer := Trim (Source => Line,
-                      Side   => Both);
-
-      if Slice (Source => Buffer,
-                Low    => 1,
-                High   => 2) = "0 " then
-         Delete (Source  => Buffer,
-                 From    => 1,
-                 Through => 2);
-         Separator := Index (Source  => Buffer & " ",
-                             Pattern => " ");
-
-         Command := To_Unbounded_String (Slice (Source => Buffer,
-                                                Low    => 1,
-                                                High   => Separator - 1));
-         Arguments := To_Unbounded_String (Slice (Source => Buffer,
-                                                  Low    => Separator + 1,
-                                                  High   => Length (Buffer)));
-      else
-         raise Bad_LDraw_Command;
-      end if;
-   end Split_LDraw_Meta_Command;
-
-   ---------------------------------------------------------------------------
-   --  procedure Lower_Case_Include_Command:
-
-   Convert_File_Names : constant Boolean :=
-     Command_Line_Processing.Value (Argument => Preserve_Case,
-                                    Default  => "no",
-                                    Index    => 1) = "no";
 
    procedure Lower_Case_Include_Command
-     (Line : in out Ada.Strings.Unbounded.Unbounded_String) is
+     (Line : in out Ada.Strings.Unbounded.Unbounded_String);
+   pragma Unreferenced (Lower_Case_Include_Command);
 
-      use Ada.Characters.Handling;
-      use Ada.Strings;
-      use Ada.Strings.Unbounded;
-      use UStrings;
-
-   begin --  Lower_Case_Include_Command
-      if Convert_File_Names then
-         null;
-      elsif Slice (Source => Trim (Source => Line,
-                                   Side   => Left),
-                   Low    => 1,
-                   High   => 2) = "1 " then
-         Line := U (To_Lower (S (Line)));
-      end if;
-   end Lower_Case_Include_Command;
-
-   ---------------------------------------------------------------------------
-   --  procedure Fix:
-   --
+   procedure Fix
+     (File_Name : in out Ada.Strings.Unbounded.Unbounded_String);
    --  Swaps non-graphic characters with spaces, and adjusts the directory
    --  separators to the appropriate values ('/', ':' or '\') depending on the
    --  operating system.
+
+   procedure Create_Path (To : in     String);
+   --  Creates the directories neccesary for the file, and adjusts the
+   --  directory separators to the appropriate values ('/' or '\') depending
+   --  on the operating system.
+
+   procedure Process_File
+     (Source                     : in     Ada.Text_IO.File_Type;
+      Overwrite                  : in     Boolean;
+      Show_Comments              : in     Boolean;
+      Create_Missing_Directories : in     Boolean);
+
+   ---------------------------------------------------------------------------
+
+   procedure Create_Path (To : in     String) is
+      use Ada.Characters.Handling;
+      use GNAT.OS_Lib;
+
+      Buffer : String := To;
+   begin
+      for Index in Buffer'Range loop
+         if Is_Control (Buffer (Index)) then
+            Buffer (Index) := ' ';
+         elsif Buffer (Index) = '/' or Buffer (Index) = '\' then
+            Buffer (Index) := Directory_Separator;
+
+            if Is_Directory (Buffer (Buffer'First .. Index - 1)) then
+               null;
+            else
+               OS.Make_Directory (Buffer (Buffer'First .. Index - 1));
+            end if;
+         end if;
+      end loop;
+   end Create_Path;
 
    procedure Fix
      (File_Name : in out Ada.Strings.Unbounded.Unbounded_String) is
@@ -250,35 +166,25 @@ procedure Split_LDraw_File is
       end loop;
    end Fix;
 
-   ---------------------------------------------------------------------------
-   --  procedure Create_Path:
-   --
-   --  Creates the directories neccesary for the file, and adjusts the
-   --  directory separators to the appropriate values ('/' or '\') depending
-   --  on the operating system.
+   Convert_File_Names : constant Boolean :=
+     Command_Line_Processing.Value (Argument => Preserve_Case,
+                                    Default  => "no",
+                                    Index    => 1) = "no";
 
-   procedure Create_Path (To : in     String) is
+   procedure Lower_Case_Include_Command
+     (Line : in out Ada.Strings.Unbounded.Unbounded_String) is
 
-      use Ada.Characters.Handling;
-      use GNAT.OS_Lib;
-
-      Buffer : String := To;
-
-   begin --  Create_Path
-      for Index in Buffer'Range loop
-         if Is_Control (Buffer (Index)) then
-            Buffer (Index) := ' ';
-         elsif Buffer (Index) = '/' or Buffer (Index) = '\' then
-            Buffer (Index) := Directory_Separator;
-
-            if Is_Directory (Buffer (Buffer'First .. Index - 1)) then
-               null;
-            else
-               OS.Make_Directory (Buffer (Buffer'First .. Index - 1));
-            end if;
-         end if;
-      end loop;
-   end Create_Path;
+      use Ada.Characters.Handling, Ada.Strings, Ada.Strings.Unbounded;
+   begin
+      if Convert_File_Names then
+         null;
+      elsif Slice (Source => Trim (Source => Line,
+                                   Side   => Left),
+                   Low    => 1,
+                   High   => 2) = "1 " then
+         Line := U (To_Lower (To_String (Line)));
+      end if;
+   end Lower_Case_Include_Command;
 
    ---------------------------------------------------------------------------
    --  procedure Process_File:
@@ -291,8 +197,8 @@ procedure Split_LDraw_File is
 
       use Ada.Strings.Maps.Constants;
       use Ada.Strings.Unbounded;
-      use Ada.Text_IO;
-      use UStrings;
+      use Ada.Text_IO, Ada.Text_IO.Unbounded_IO;
+      use LDraw_Processing;
 
       Target       : File_Type;
       Current_Line : Unbounded_String;
@@ -322,42 +228,44 @@ procedure Split_LDraw_File is
                        Mapping => Lower_Case_Map);
             Fix (File_Name => File_Name);
 
-            if not Overwrite and File_System.Exists (S (File_Name)) then
+            if not Overwrite and File_System.Exists
+                                   (To_String (File_Name)) then
                Put_Line (File => Current_Error,
                          Item => "There is allready a file named """ &
-                                 S (File_Name) & """. The data are written " &
+                                 To_String (File_Name) &
+                                 """. The data are written " &
                                  "to standard output instead. Please use " &
                                  "the -overwrite argument if you want to " &
                                  "overwrite the existing file.");
             else
                begin
                   if Create_Missing_Directories then
-                     Create_Path (To => S (File_Name));
+                     Create_Path (To => To_String (File_Name));
                   end if;
 
-               Handle_Bad_File_Names:
+                  Handle_Bad_File_Names :
                   begin
                      Create (File => Target,
-                             Name => S (File_Name),
+                             Name => To_String (File_Name),
                              Mode => Out_File);
                   exception
                      when others =>
                         Put_Line (File => Current_Error,
                                   Item => "Could not create a file named """ &
-                                          S (File_Name) & """.");
+                                          To_String (File_Name) & """.");
                         raise Bad_File_Name;
                   end Handle_Bad_File_Names;
 
                   Put_Line (File => Target,
-                            Item => "0 FILE " & S (File_Name));
+                            Item => "0 FILE " & To_String (File_Name));
                   Put_Line (File => Current_Error,
-                            Item => "Writing LDraw file """ & S (File_Name) &
-                                    """.");
+                            Item => "Writing LDraw file """ &
+                                    To_String (File_Name) & """.");
                exception
                   when others =>
                      Put_Line (File => Current_Error,
                                Item => "Unable to create the file """ &
-                                       S (File_Name) & """.");
+                                       To_String (File_Name) & """.");
                end;
             end if;
          elsif Is_Open (File => Target) then

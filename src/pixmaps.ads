@@ -35,48 +35,23 @@ package Pixmaps is
 
    type Pixmap_Reference is access all Pixmap_Type;
 
-   ---------------------------------------------------------------------------
-   -- Subset:
-
    function Subset (Pixmap       : in Pixmap_Type;
                     Min_X, Max_X : in Integer;
                     Min_Y, Max_Y : in Integer) return Pixmap_Type;
 
-   ---------------------------------------------------------------------------
-   -- Rotate_90_deg:
-
-   -- Rotating the pixmap 90° around origo.
-
    function Rotate_90_deg (Pixmap : in Pixmap_Type) return Pixmap_Type;
-
-   ---------------------------------------------------------------------------
-   -- Rotate_180_deg:
-
-   -- Rotating the pixmap 180° around origo.
+   --  Rotating the pixmap 90° around origo.
 
    function Rotate_180_deg (Pixmap : in Pixmap_Type) return Pixmap_Type;
-
-   ---------------------------------------------------------------------------
-   -- Rotate_270_deg:
-
-   -- Rotating the pixmap 270° around origo.
+   --  Rotating the pixmap 180° around origo.
 
    function Rotate_270_deg (Pixmap : in Pixmap_Type) return Pixmap_Type;
-
-   ---------------------------------------------------------------------------
-   -- Mirror_X:
-
-   -- Mirror around the x-axis.
+   --  Rotating the pixmap 270° around origo.
 
    procedure Mirror_X (Pixmap : in out Pixmap_Type);
-
-   ---------------------------------------------------------------------------
-   -- Mirror_Y:
-
-   -- Mirror around the y-axis.
+   --  Mirror around the x-axis.
 
    procedure Mirror_Y (Pixmap : in out Pixmap_Type);
-
-   ---------------------------------------------------------------------------
+   --  Mirror around the y-axis.
 
 end Pixmaps;
