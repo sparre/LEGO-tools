@@ -83,7 +83,7 @@ package body File_System is
 
       return True;
    exception
-      when Name_Error =>
+      when Name_Error | Use_Error =>
          return False;
       when others =>
          Put_Line

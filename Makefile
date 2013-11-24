@@ -39,6 +39,8 @@ fix-whitespace:
 
 metrics:
 	@gnat metric -P $(PROJECT)
-	@echo Worst complexity in file: $$(basename $$(grep complexity obj/*metr* | sort -n -t: -k3 | tail -n1 | cut -d: -f1) .metrix)
+	@echo Bodies with excessive cyclomatic complexity:
+	@echo
+	@egrep ' body | cyclomatic complexity ' obj/*.metrix | egrep -B1 ' cyclomatic complexity +: +(1[1-9]|[2-9][0-9]|[0-9]{3})' | egrep ' body ' | perl -lpe 's!^obj/!   !; s![.]metrix: *! : !; s![(].+ at lines +([0-9]+): !(lines $$1..!'
 	@echo
 

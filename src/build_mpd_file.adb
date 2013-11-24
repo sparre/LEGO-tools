@@ -178,16 +178,21 @@ procedure Build_MPD_File is
                   Extract_Subfile_Name (Line         => Current_Line,
                                         Subfile_Name => Subfile_Name);
 
+                  Ada.Text_IO.Put_Line
+                    ("Inserting '" & To_String (Subfile_Name) &
+                      "' in Seen.");
                   Seen.Insert (To_String (Subfile_Name));
                end if;
             end loop;
 
+            Put_Line ("Inserting '" & Name & "' in Scanned.");
             Scanned.Insert (Name);
 
             Put_Line (File => Current_Error,
                       Item => "Done.");
          exception
             when End_Error =>
+               Put_Line ("Inserting '" & Name & "' in Scanned.");
                Scanned.Insert (Name);
 
                Put_Line (File => Current_Error,
@@ -209,11 +214,10 @@ procedure Build_MPD_File is
                raise;
          end;
       else
+         Ada.Text_IO.Put_Line ("Inserting '" & Name & "' in Not_Found.");
          Not_Found.Insert (Name);
       end if;
    end Scan_And_Copy_Model;
-
-   ---------------------------------------------------------------------------
 
    ---------------------------------------------------------------------------
 
