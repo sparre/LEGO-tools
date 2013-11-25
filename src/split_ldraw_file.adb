@@ -53,8 +53,7 @@ with
 with
   Generic_Command_Line_Processing,
   Generic_Command_Line_Types,
-  LDraw_Processing,
-  OS.Make_Directory;
+  LDraw_Processing;
 
 procedure Split_LDraw_File is
 
@@ -106,11 +105,6 @@ procedure Split_LDraw_File is
    --  separators to the appropriate values ('/', ':' or '\') depending on the
    --  operating system.
 
-   procedure Create_Path (To : in     String);
-   --  Creates the directories neccesary for the file, and adjusts the
-   --  directory separators to the appropriate values ('/' or '\') depending
-   --  on the operating system.
-
    procedure Close_If_Open (File : in out Ada.Text_IO.File_Type)
      with Post => (not Ada.Text_IO.Is_Open (File));
 
@@ -128,27 +122,6 @@ procedure Split_LDraw_File is
          Ada.Text_IO.Close (File);
       end if;
    end Close_If_Open;
-
-   procedure Create_Path (To : in     String) is
-      use Ada.Characters.Handling;
-      use GNAT.OS_Lib;
-
-      Buffer : String := To;
-   begin
-      for Index in Buffer'Range loop
-         if Is_Control (Buffer (Index)) then
-            Buffer (Index) := ' ';
-         elsif Buffer (Index) = '/' or Buffer (Index) = '\' then
-            Buffer (Index) := Directory_Separator;
-
-            if Is_Directory (Buffer (Buffer'First .. Index - 1)) then
-               null;
-            else
-               OS.Make_Directory (Buffer (Buffer'First .. Index - 1));
-            end if;
-         end if;
-      end loop;
-   end Create_Path;
 
    procedure Fix
      (File_Name : in out Ada.Strings.Unbounded.Unbounded_String) is
@@ -246,7 +219,8 @@ procedure Split_LDraw_File is
             else
                begin
                   if Create_Missing_Directories then
-                     Create_Path (To => To_String (File_Name));
+                     Ada.Directories.Create_Path
+                       (New_Directory => To_String (File_Name));
                   end if;
 
                   Handle_Bad_File_Names :

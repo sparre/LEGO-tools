@@ -12,6 +12,7 @@ package File_System is
 
    procedure Copy (From : in     String;
                    To   : in     String);
+   pragma Obsolescent (Copy, "Please use Ada.Directories.Copy_File.");
    --  Copies a file named From to a file named To.
 
    procedure Delete (Name : in     String);

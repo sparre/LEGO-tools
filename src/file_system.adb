@@ -5,30 +5,9 @@ package body File_System is
 
    procedure Copy (From : in     String;
                    To   : in     String) is
-      use Ada.Streams;
-      use Ada.Streams.Stream_IO;
-
-      Buffer         : Stream_Element_Array (0 .. 4095);
-      Filled_To      : Stream_Element_Offset;
-      Source, Target : File_Type;
    begin
-      Open (File => Source,
-            Name => From,
-            Mode => In_File);
-      Create (File => Target,
-              Name => To,
-              Mode => Out_File);
-
-      while not End_Of_File (File => Source) loop
-         Read (File => Source,
-               Item => Buffer,
-               Last => Filled_To);
-         Write (File => Target,
-                Item => Buffer (Buffer'First .. Filled_To));
-      end loop;
-
-      Close (File => Source);
-      Close (File => Target);
+      Ada.Directories.Copy_File (Source_Name => From,
+                                 Target_Name => To);
    end Copy;
 
    procedure Delete (Name : in     String) is
