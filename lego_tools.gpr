@@ -1,3 +1,5 @@
+--  O mighty Emacs, please use -*- Ada -*- mode in this lowly file.
+
 with "ada_2012";
 
 project LEGO_Tools is
@@ -9,6 +11,7 @@ project LEGO_Tools is
                  "pgm_to_ldraw",
                  "split_ldraw_file");
 
+   package Builder  renames Ada_2012.Builder;
    package Compiler renames Ada_2012.Compiler;
 
    for Object_Dir use "obj/";
