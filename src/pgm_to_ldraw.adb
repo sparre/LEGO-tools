@@ -57,6 +57,12 @@ procedure PGM_To_LDraw is
      (Landscape : in     PGM.Pixmaps_16_Bit.Pixmap_Reference;
       X, Y      : in     Natural) return Natural;
 
+   procedure Load_Colour_Map
+     (Item :    out PGM.Pixmaps_16_Bit.Pixmap_Reference);
+
+   procedure Rescale (Landscape  : in out PGM.Pixmaps_16_Bit.Pixmap_Type;
+                      New_Height : in     Positive);
+
    ---------------------------------------------------------------------------
    --  Command line processing:
 
@@ -83,6 +89,20 @@ procedure PGM_To_LDraw is
                               No_Edge => U ("")));
 
    ---------------------------------------------------------------------------
+
+   procedure Load_Colour_Map
+     (Item :    out PGM.Pixmaps_16_Bit.Pixmap_Reference) is
+   begin
+      PGM.Load (Name => Command_Line_Processing.Value (Argument => Map,
+                                                       Index    => 1),
+                Item => Item);
+   exception
+      when others =>
+         Ada.Text_IO.Put_Line
+           (File => Ada.Text_IO.Current_Error,
+            Item => "No colour map. Aborting ...");
+         raise;
+   end Load_Colour_Map;
 
    Ground_Edge : constant Boolean :=
                    not Command_Line_Processing.Set (No_Edge);
@@ -288,8 +308,32 @@ procedure PGM_To_LDraw is
       end loop;
    end Put_Tall_Column;
 
-   ---------------------------------------------------------------------------
-   --  function Lowest_Neighbour:
+   procedure Rescale (Landscape  : in out PGM.Pixmaps_16_Bit.Pixmap_Type;
+                      New_Height : in     Positive) is
+      Bottom : PGM.Grey_16_Bit := PGM.Grey_16_Bit'Last;
+      Top    : PGM.Grey_16_Bit := PGM.Grey_16_Bit'First;
+   begin
+      for X in Landscape'Range (1) loop
+         for Y in Landscape'Range (2) loop
+            Bottom := PGM.Grey_16_Bit'Min (Bottom, Landscape (X, Y));
+            Top    := PGM.Grey_16_Bit'Max (Top,    Landscape (X, Y));
+         end loop;
+      end loop;
+
+      declare
+         use type PGM.Grey_16_Bit;
+
+         Old_Height : constant Positive := Integer (Top - Bottom);
+      begin
+         for X in Landscape'Range (1) loop
+            for Y in Landscape'Range (2) loop
+               Landscape (X, Y) :=
+                 PGM.Grey_16_Bit (Integer (Landscape (X, Y) - Bottom)
+                                    * New_Height / Old_Height);
+            end loop;
+         end loop;
+      end;
+   end Rescale;
 
    ---------------------------------------------------------------------------
 
@@ -302,38 +346,15 @@ procedure PGM_To_LDraw is
    Use_Tall_Bricks       : constant Boolean := Command_Line_Processing.Set
                                                  (Minimal);
 
-begin --  PGM_To_LDraw
+begin
    Ada.Float_Text_IO.Default_Exp := 0;
 
    Load (File => Current_Input,
          Item => Landscape);
 
    if Command_Line_Processing.Set (Height) then
-      declare
-         New_Height : constant Integer := Command_Line_Processing.Value
-                                            (Height, 1);
-         Old_Height : Integer;
-
-         Bottom : PGM.Grey_16_Bit := PGM.Grey_16_Bit'Last;
-         Top    : PGM.Grey_16_Bit := PGM.Grey_16_Bit'First;
-      begin
-         for X in Landscape'Range (1) loop
-            for Y in Landscape'Range (2) loop
-               Bottom := PGM.Grey_16_Bit'Min (Bottom, Landscape (X, Y));
-               Top    := PGM.Grey_16_Bit'Max (Top,    Landscape (X, Y));
-            end loop;
-         end loop;
-
-         Old_Height := Integer (Top - Bottom);
-
-         for X in Landscape'Range (1) loop
-            for Y in Landscape'Range (2) loop
-               Landscape (X, Y) :=
-                 PGM.Grey_16_Bit (Integer (Landscape (X, Y) - Bottom)
-                                    * New_Height / Old_Height);
-            end loop;
-         end loop;
-      end;
+      Rescale (Landscape  => Landscape.all,
+               New_Height => Command_Line_Processing.Value (Height, 1));
    end if;
 
    if Command_Line_Processing.Set (Colour) then
@@ -364,17 +385,7 @@ begin --  PGM_To_LDraw
       Put_Line (File => Current_Output,
                 Item => "0 STEP");
    elsif Command_Line_Processing.Set (Map) then
-      Load_Colour_Map :
-      begin
-         Load (Name => Command_Line_Processing.Value (Argument => Map,
-                                                      Index    => 1),
-               Item => Colour_Map);
-      exception
-         when others =>
-            Put_Line (File => Current_Error,
-                      Item => "No colour map. Aborting ...");
-            raise;
-      end Load_Colour_Map;
+      Load_Colour_Map (Item => Colour_Map);
 
       for X in Landscape'Range (1) loop
          for Y in Landscape'Range (2) loop

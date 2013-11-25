@@ -111,6 +111,9 @@ procedure Split_LDraw_File is
    --  directory separators to the appropriate values ('/' or '\') depending
    --  on the operating system.
 
+   procedure Close_If_Open (File : in out Ada.Text_IO.File_Type)
+     with Post => (not Ada.Text_IO.Is_Open (File));
+
    procedure Process_File
      (Source                     : in     Ada.Text_IO.File_Type;
       Overwrite                  : in     Boolean;
@@ -118,6 +121,13 @@ procedure Split_LDraw_File is
       Create_Missing_Directories : in     Boolean);
 
    ---------------------------------------------------------------------------
+
+   procedure Close_If_Open (File : in out Ada.Text_IO.File_Type) is
+   begin
+      if Ada.Text_IO.Is_Open (File) then
+         Ada.Text_IO.Close (File);
+      end if;
+   end Close_If_Open;
 
    procedure Create_Path (To : in     String) is
       use Ada.Characters.Handling;
@@ -146,7 +156,7 @@ procedure Split_LDraw_File is
       use Ada.Characters.Handling;
       use Ada.Strings.Unbounded;
 
-   begin --  Fix
+   begin
       for Index in 1 .. Length (File_Name) loop
          if Is_Control (Element (Source => File_Name,
                                  Index  => Index)) then
@@ -205,21 +215,17 @@ procedure Split_LDraw_File is
       Command      : Unbounded_String;
       File_Name    : Unbounded_String;
 
-   begin --  Process_File
+   begin
       while not End_Of_File (Source) loop
          Get_Line (File => Source,
                    Item => Current_Line);
 
          if Is_Meta_Command (Line    => Current_Line,
                              Command => "NoFile") then
-            if Is_Open (File => Target) then
-               Close (File => Target);
-            end if;
+            Close_If_Open (File => Target);
          elsif Is_Meta_Command (Line    => Current_Line,
                                 Command => "File") then
-            if Is_Open (File => Target) then
-               Close (File => Target);
-            end if;
+            Close_If_Open (File => Target);
 
             Split_LDraw_Meta_Command (Line      => Current_Line,
                                       Command   => Command,
@@ -277,9 +283,7 @@ procedure Split_LDraw_File is
          end if;
       end loop;
 
-      if Is_Open (Target) then
-         Close (File => Target);
-      end if;
+      Close_If_Open (File => Target);
    end Process_File;
 
    ---------------------------------------------------------------------------
@@ -294,7 +298,7 @@ procedure Split_LDraw_File is
 
    Source : File_Type;
 
-begin --  Split_LDraw_File
+begin
    if Set (Help) then
       Put_Help (File => Standard_Output);
    elsif Set (MPD) then
