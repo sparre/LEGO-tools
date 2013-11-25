@@ -1,11 +1,14 @@
 with
+  Ada.Directories,
   Ada.Strings.Unbounded;
 with
   String_Arrays;
 
 package File_System is
 
-   function Exists (File_Name : in String) return Boolean;
+   function Exists (File_Name : in String) return Boolean
+     renames Ada.Directories.Exists;
+   pragma Obsolescent (Exists, "Please use Ada.Directories.Exists.");
 
    procedure Copy (From : in     String;
                    To   : in     String);

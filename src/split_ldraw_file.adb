@@ -43,6 +43,7 @@
 
 with
   Ada.Characters.Handling,
+  Ada.Directories,
   Ada.Strings.Maps.Constants,
   Ada.Strings.Unbounded,
   Ada.Text_IO,
@@ -50,7 +51,6 @@ with
 with
   GNAT.OS_Lib;  --  Used to get Is_Directory and Directory_Separator.
 with
-  File_System,
   Generic_Command_Line_Processing,
   Generic_Command_Line_Types,
   LDraw_Processing,
@@ -234,7 +234,7 @@ procedure Split_LDraw_File is
                        Mapping => Lower_Case_Map);
             Fix (File_Name => File_Name);
 
-            if not Overwrite and File_System.Exists
+            if not Overwrite and Ada.Directories.Exists
                                    (To_String (File_Name)) then
                Put_Line (File => Current_Error,
                          Item => "There is allready a file named """ &
