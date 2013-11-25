@@ -1,13 +1,7 @@
-PROJECT=lego_tools
+include Makefile.project
+-include .config
 
-GENERATED_EXECUTABLES=bin/build_mpd_file \
-                      bin/fractal_landscape \
-                      bin/pgm_to_ldraw \
-                      bin/split_ldraw_file
-
-GENERATED_SOURCES=
-
-EXECUTABLES=$(GENERATED_EXECUTABLES)
+EXECUTABLES=$(GENERATED_EXECUTABLES) $(SCRIPTS)
 
 all: build metrics
 
