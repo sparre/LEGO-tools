@@ -15,6 +15,7 @@
 ------------------------------------------------------------------------------
 
 with
+  Ada.Directories,
   Ada.Command_Line,
   Ada.Strings.Unbounded,
   Ada.Text_IO,
@@ -89,7 +90,7 @@ procedure Build_MPD_File is
          declare
             To_Process : constant String_Sets.Set := Seen;
          begin
-            for Sub_Model of To_Process loop
+            for Model of To_Process loop
                Scan_And_Copy_Model
                  (Name                 => Model,
                   Included_Directories => Included_Directories,
@@ -112,7 +113,7 @@ procedure Build_MPD_File is
       Put_Line (File, "0 to LDraw files using the MPD Splitter. Both can");
       Put_Line (File, "0 be downloaded from:");
       Put_Line (File, "0");
-      Put_Line (File, "0    http://jacob.sparre.dk/Ada/mpd_files/");
+      Put_Line (File, "0    http://edb.jacob-sparre.dk/Ada/mpd_files/");
       Put_Line (File, "0");
       Put_Line (File, "0 L3P, LDLite and LDGLite can process MPD files");
       Put_Line (File, "0 directly.");
@@ -145,7 +146,7 @@ procedure Build_MPD_File is
 
       if Found_File then
          declare
-            use Ada.Text_IO, Ada.Text_IO.Unbounded_IO;
+            use Ada.Directories, Ada.Text_IO, Ada.Text_IO.Unbounded_IO;
             use LDraw_Processing;
             Model        : Ada.Text_IO.File_Type;
             Current_Line : Unbounded_String;
@@ -159,7 +160,7 @@ procedure Build_MPD_File is
                   Mode => In_File);
 
             Put_Line (File => Target,
-                      Item => "0 FILE " & File_Name);
+                      Item => "0 FILE " & Simple_Name (To_String (File_Name)));
 
             while not End_Of_File (File => Model) loop
                Get_Line (File => Model,
@@ -179,21 +180,21 @@ procedure Build_MPD_File is
                                         Subfile_Name => Subfile_Name);
 
                   Ada.Text_IO.Put_Line
-                    ("Inserting '" & To_String (Subfile_Name) &
+                    ("Inserting '" & Simple_Name (To_String (Subfile_Name)) &
                       "' in Seen.");
-                  Seen.Insert (To_String (Subfile_Name));
+                  Seen.Insert (Simple_Name (To_String (Subfile_Name)));
                end if;
             end loop;
 
-            Put_Line ("Inserting '" & Name & "' in Scanned.");
-            Scanned.Insert (Name);
+            Put_Line ("Inserting '" & Simple_Name (Name) & "' in Scanned.");
+            Scanned.Insert (Simple_Name (Name));
 
             Put_Line (File => Current_Error,
                       Item => "Done.");
          exception
             when End_Error =>
-               Put_Line ("Inserting '" & Name & "' in Scanned.");
-               Scanned.Insert (Name);
+               Put_Line ("Inserting '" & Simple_Name (Name) & "' in Scanned.");
+               Scanned.Insert (Simple_Name (Name));
 
                Put_Line (File => Current_Error,
                          Item => "Done.");
@@ -214,8 +215,10 @@ procedure Build_MPD_File is
                raise;
          end;
       else
-         Ada.Text_IO.Put_Line ("Inserting '" & Name & "' in Not_Found.");
-         Not_Found.Insert (Name);
+         Ada.Text_IO.Put_Line
+           ("Inserting '" & Ada.Directories.Simple_Name (Name) &
+            "' in Not_Found.");
+         Not_Found.Insert (Ada.Directories.Simple_Name (Name));
       end if;
    end Scan_And_Copy_Model;
 
