@@ -1,0 +1,42 @@
+#! /bin/zsh
+#-----------------------------------------------------------------------------
+#--  Set current working directory:
+
+if cd "$(dirname "$0")"; then
+   true
+else
+   echo "Could not make '$(dirname "$0")' the current working directory." 1>&2
+   exit 100
+fi
+
+#-----------------------------------------------------------------------------
+#--  Run application:
+
+../../bin/build_mpd_file -model scene.ldr ; result=$?
+
+if [ ${result} != 0 ]; then
+   echo "'build_mpd_file' failed to run.  Exit code: ${result}" 1>&2
+   exit ${result}
+fi
+
+#-----------------------------------------------------------------------------
+#--  Compare output with the expected result:
+
+local counter=0
+
+for reference in expected/*.mpd; do
+   generated=$(basename ${reference})
+
+   if diff ${reference} ${generated}; then
+      rm -f ${generated}
+   else
+      echo "'${generated}' does not match the expected result." 1>&2
+      let counter++
+   fi
+done
+
+#-----------------------------------------------------------------------------
+
+exit ${counter}
+
+#-----------------------------------------------------------------------------
