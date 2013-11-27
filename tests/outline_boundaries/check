@@ -1,0 +1,40 @@
+#! /bin/bash
+#-----------------------------------------------------------------------------
+#--  Set current working directory:
+
+if cd "$(dirname "$0")"; then
+   true
+else
+   echo "Could not make '$(dirname "$0")' the current working directory." 1>&2
+   exit 100
+fi
+
+#-----------------------------------------------------------------------------
+#--  Generate demo images:
+
+echo $'P3\n2 1\n255\n255 0 0 0 0 255' \
+  | pnmscale -nomix -width 20 -height 20 \
+  | pnmnoraw \
+  > source.ppm
+
+#-----------------------------------------------------------------------------
+#--  Outline boundaries:
+
+../../bin/outline_boundaries < source.ppm > processed.ppm ; result=$?
+
+if [ ${result} != 0 ]; then
+   echo "'outline_boundaries' failed.  Status code: ${result}" 1>&2
+   exit ${result}
+fi
+
+#-----------------------------------------------------------------------------
+#--  Comparison:
+
+if diff <(pnmnoraw reference.ppm) <(pnmnoraw processed.ppm); then
+   rm -f source.ppm processed.ppm
+else
+   echo "The output from 'outline_boundaries' differs from the expected." 1>&2
+   exit 101
+fi
+
+#-----------------------------------------------------------------------------

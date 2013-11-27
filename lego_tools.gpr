@@ -8,6 +8,7 @@ project LEGO_Tools is
 
    for Main use ("build_mpd_file",
                  "fractal_landscape",
+                 "outline_boundaries",
                  "pgm_to_ldraw",
                  "split_ldraw_file");
 
