@@ -1,0 +1,14 @@
+mathematics-and-statistics:
+	if [ ! -d mathematics-and-statistics ]; then ( rm -f mathematics-and-statistics && hg clone http://repositories.jacob-sparre.dk/mathematics-and-statistics ); fi
+
+mathematics-and-statistics-update: mathematics-and-statistics
+	cd mathematics-and-statistics && hg pull && hg update && hg revert --all
+
+old-command-line-packages:
+	if [ ! -d old-command-line-packages ]; then ( rm -f old-command-line-packages && hg clone http://repositories.jacob-sparre.dk/old-command-line-packages ); fi
+
+old-command-line-packages-update: old-command-line-packages
+	cd old-command-line-packages && hg pull && hg update && hg revert --all
+
+.PHONY: mathematics-and-statistics-update old-command-line-packages-update
+

@@ -5,7 +5,7 @@ GENERATED_EXECUTABLES=bin/build_mpd_file \
                       bin/pgm_to_ldraw \
                       bin/split_ldraw_file
 
-GENERATED_SOURCES=
+GENERATED_SOURCES=mathematics-and-statistics old-command-line-packages
 
 SCRIPTS=
 
