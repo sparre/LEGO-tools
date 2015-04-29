@@ -28,7 +28,8 @@ package body LDraw_Processing is
 
       if Slice (Source => Buffer,
                 Low    => 1,
-                High   => 2) = "1 " then
+                High   => 2) = "1 "
+      then
          Separator := Index (Source  => Buffer,
                              Pattern => " ",
                              Going   => Backward);
@@ -76,7 +77,8 @@ package body LDraw_Processing is
          return False;
       elsif Slice (Source => Buffer,
                 Low    => 1,
-                High   => 2) = "0 " then
+                High   => 2) = "0 "
+      then
          Delete (Source  => Buffer,
                  From    => 1,
                  Through => 2);
@@ -114,7 +116,8 @@ package body LDraw_Processing is
          return False;
       elsif Slice (Source => Buffer,
                    Low    => 1,
-                   High   => 2) = "1 " then
+                   High   => 2) = "1 "
+      then
          return True;
       else
          return False;
@@ -162,7 +165,8 @@ package body LDraw_Processing is
 
       if Slice (Source => Buffer,
                 Low    => 1,
-                High   => 2) = "0 " then
+                High   => 2) = "0 "
+      then
          Delete (Source  => Buffer,
                  From    => 1,
                  Through => 2);

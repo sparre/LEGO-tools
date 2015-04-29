@@ -119,7 +119,8 @@ procedure PGM_To_LDraw is
       if Ground_Edge and (X = Landscape'First (1) or
                           X = Landscape'Last (1) or
                           Y = Landscape'First (2) or
-                          Y = Landscape'Last (2)) then
+                          Y = Landscape'Last (2))
+      then
          Bottom := Grey_16_Bit'First;
       else
          for X_Index in Natural'Max (X - 1, Landscape'First (1)) ..

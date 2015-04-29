@@ -112,7 +112,8 @@ procedure Fractal_Landscape is
       Pixmap := new Pixmap_Type (Min_X .. Max_X, Min_Y .. Max_Y);
 
       if Min_X in Grid'Range (1) and Max_X in Grid'Range (1) and
-         Min_Y in Grid'Range (2) and Max_Y in Grid'Range (2) then
+         Min_Y in Grid'Range (2) and Max_Y in Grid'Range (2)
+      then
 
          for X in Min_X .. Max_X loop
             for Y in Min_Y .. Max_Y loop

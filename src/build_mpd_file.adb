@@ -167,7 +167,8 @@ procedure Build_MPD_File is
                          Item => Current_Line);
 
                if Is_Meta_Command (Line    => Current_Line,
-                                   Command => "File") then
+                                   Command => "File")
+               then
                   Put_Line (File => Target,
                             Item => "0 Was: " & Current_Line);
                else

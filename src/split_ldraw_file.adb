@@ -132,7 +132,8 @@ procedure Split_LDraw_File is
    begin
       for Index in 1 .. Length (File_Name) loop
          if Is_Control (Element (Source => File_Name,
-                                 Index  => Index)) then
+                                 Index  => Index))
+         then
             Replace_Element (Source => File_Name,
                              Index  => Index,
                              By     => ' ');
@@ -141,7 +142,8 @@ procedure Split_LDraw_File is
                Element (Source => File_Name,
                         Index  => Index) = ':' or else
                Element (Source => File_Name,
-                        Index  => Index) = '\' then
+                        Index  => Index) = '\'
+         then
             Replace_Element (Source => File_Name,
                              Index  => Index,
                              By     => GNAT.OS_Lib.Directory_Separator);
@@ -164,7 +166,8 @@ procedure Split_LDraw_File is
       elsif Slice (Source => Trim (Source => Line,
                                    Side   => Left),
                    Low    => 1,
-                   High   => 2) = "1 " then
+                   High   => 2) = "1 "
+      then
          Line := U (To_Lower (To_String (Line)));
       end if;
    end Lower_Case_Include_Command;
@@ -194,10 +197,12 @@ procedure Split_LDraw_File is
                    Item => Current_Line);
 
          if Is_Meta_Command (Line    => Current_Line,
-                             Command => "NoFile") then
+                             Command => "NoFile")
+         then
             Close_If_Open (File => Target);
          elsif Is_Meta_Command (Line    => Current_Line,
-                                Command => "File") then
+                                Command => "File")
+         then
             Close_If_Open (File => Target);
 
             Split_LDraw_Meta_Command (Line      => Current_Line,
@@ -208,7 +213,8 @@ procedure Split_LDraw_File is
             Fix (File_Name => File_Name);
 
             if not Overwrite and Ada.Directories.Exists
-                                   (To_String (File_Name)) then
+                                   (To_String (File_Name))
+            then
                Put_Line (File => Current_Error,
                          Item => "There is allready a file named """ &
                                  To_String (File_Name) &
