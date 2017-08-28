@@ -41,8 +41,8 @@ for file in $(find ./ -mindepth 2 -type f -name \*.gpr | sort); do
 
    rm -f "$(dirname "${file}")"/*.{o,ali}
 
-   if gnatmake -j${PROCESSORS} -P ${file} 1>${file}.output \
-                                          2>${file}.errors; then
+   if gnatmake -j${PROCESSORS} -p -P ${file} 1>${file}.output \
+                                             2>${file}.errors; then
       echo ${build_number}/${number_of_builds}$'\tBuild succeeded' 1>&2
 
       echo ${file} >> ${succeeded_list}
@@ -59,7 +59,7 @@ failed=$(cat ${failed_list} | wc -l)
 
 if [ -s ${failed_list} ]; then
    echo "${failed} out of ${total} builds failed:"
-   uniq < ${failed_list} | sed 's/^./   tests/;'
+   uniq < ${failed_list} | sed 's/^./   gnatmake -p -P tests/;'
 else
    echo "All ${total} builds succeeded."
 fi
